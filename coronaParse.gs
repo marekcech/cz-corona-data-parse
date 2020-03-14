@@ -23,6 +23,7 @@ function parseCorona() {
   rows.push(["date","tested cases", "positive tests"]);
   // preapare helper variable
   var positiveTests = "";
+  var totalTestedCases = 0;
   
   // go through all the object, it assume same dates in both columns
   for (var v in data.testedCases) {
@@ -34,7 +35,7 @@ function parseCorona() {
     } else {
       positiveTests = "no data";
     }
-    
+    totalTestedCases += parseInt(data.testedCases[v].value,10);
     rows.push([data.testedCases[v].date,data.testedCases[v].value, positiveTests]);
     
   }
@@ -52,8 +53,14 @@ function parseCorona() {
   // prepare headers
   rows.push(["total tested","infected", "source Url","source update","apify update","help"]);
   
+  // assign the sum from the source
+  if (data.totalTested != null) {
+      
+      totalTestedCases = data.totalTested;
+  }
+  
   // push the general no data specific information
-  rows.push([data.totalTested,data.infected,data.sourceUrl,data.lastUpdatedAtSource,data.lastUpdatedAtApify,data.readMe]);
+  rows.push([totalTestedCases,data.infected,data.sourceUrl,data.lastUpdatedAtSource,data.lastUpdatedAtApify,data.readMe]);
   
   // write it to sheet
   row = rows.length;
