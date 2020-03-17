@@ -1,7 +1,10 @@
+var APP = SpreadsheetApp;
+
 /* simple and stupid parse function for apify data source for corona virus testing in czech 
 *  available here https://api.apify.com/v2/key-value-stores/K373S4uCFR9W1K8ei/records/LATEST?disableRedirect=true 
 *  created as part of cesko.digital initiative */
 
+/** simple function takes the source and put it in sheet in rather formated way **/
 function parseCorona() {
   
   // get the api endpoint and fetch data
@@ -17,7 +20,137 @@ function parseCorona() {
   // get the current sheet
   var doc = SpreadsheetApp.getActiveSpreadsheet();
   var ss = doc.getSheetByName("Sheet1");
+  ss.clear();
+    
+ // APP.flush();
+  Utilities.sleep(500);
   var dataSheet = ss.getDataRange().getValues();
+  // prepare the rows object
+  var rows = [];
+  // prepare headers
+   rows.push(["date","tested cases", "positive tests"]);
+  // preapare helper variable
+  var positiveTests = "";
+  var totalTestedCases = 0;
+  var lastRow = ss.getLastRow()+1;
+  
+  // go through all the object, it assume same dates in both columns
+  for (var v = 0; v < data.numberOfTestedGraph.length; v++) {
+ 
+       var number = v+1;
+    
+   // get the data
+    
+    for (var p = 0; p < data.totalPositiveTests.length; p++) {
+    
+    if (data.numberOfTestedGraph[v] && data.totalPositiveTests[p].date == data.numberOfTestedGraph[v].date) {
+      
+      positiveTests = data.totalPositiveTests[p].value;
+      break;
+      
+    } else {
+      positiveTests = "no data";
+    }
+    
+   
+     }
+    
+     //  totalTestedCases += parseInt(data.numberOfTestedGraph[v].value,10);
+    
+    rows.push([data.numberOfTestedGraph[v].date, data.numberOfTestedGraph[v].value, positiveTests]);
+    //  (informationPassedObj[0] == undefined ) ? '' : informationPassedObj[0])
+     }
+           
+           
+  //check if there are data
+  if(rows[0]) {         
+               // write to the sheet
+       var row = rows.length;
+       var column = rows[0].length;
+              
+      ss.getRange(1,1, row, column).setValues(rows);
+  }
+    
+    
+    // reset the rows object
+    
+    rows = [];
+    
+    // prepare headers
+    rows.push(["total tested","infected","recovered", "source Url","source update","apify update","help"]);
+    
+    // assign the sum from the source
+    if (data.totalTested != null) {
+      
+      totalTestedCases = data.totalTested;
+    }
+    
+    // push the general no data specific information
+    rows.push([data.totalTested,data.infected,data.recovered,data.sourceUrl,data.lastUpdatedAtSource,data.lastUpdatedAtApify,data.readMe]);
+    
+    // write it to sheet
+    var row = rows.length;
+    var columnNew = rows[0].length;
+    
+    ss.getRange(1,4,row, columnNew).setValues(rows);
+    
+    rows = [];
+    
+    
+    // prepare the regions sheets
+    
+    var sheetRegions = doc.getSheetByName("REGIONS");
+  //  var dataRegions = doc.getDataRange().getValues();
+  
+//    sheetRegions.clear();
+    
+  APP.flush();
+  Utilities.sleep(500);
+    
+    // go through all the regions
+    
+      
+ rows.push(["date","region", "infected"]);
+     
+  for (var r=0; r < data.infectedByRegion.length; r++) {
+      //  totalTestedCases += parseInt(data.numberOfTestedGraph[v].value,10);
+      
+      rows.push([data.lastUpdatedAtSource,data.infectedByRegion[r].region, data.infectedByRegion[r].value]);
+  
+       }
+     
+      //  (informationPassedObj[0] == undefined ) ? '' : informationPassedObj[0])
+   
+  
+    if(rows[0]) { 
+    // write to the sheet
+    var row = rows.length;
+    var column = rows[0].length;
+  // var lastRow = sheetRegions.getLastRow()+1;
+    
+    sheetRegions.getRange(1,1, row, column).setValues(rows);
+    }
+  }
+  
+/** incremental parse need lot of fix **/
+function parseCoronaIncremental() {
+  
+  // get the api endpoint and fetch data
+  //    var options = { headers : { Authorization: "Basic " + key }}
+  var options = { headers : {}};
+  var url = "https://api.apify.com/v2/key-value-stores/K373S4uCFR9W1K8ei/records/LATEST?disableRedirect=true"; 
+  var json = UrlFetchApp.fetch(url, options).getContentText(); 
+  
+  // Logger.log(json);
+  // parse the json return
+  var data = JSON.parse(json);
+  
+  // get the current sheet
+  var doc = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = doc.getSheetByName("Sheet1");
+  var dataSheet = ss.getDataRange().getValues();
+  
+  
   // prepare the rows object
   var rows = [];
   // prepare headers
@@ -132,7 +265,6 @@ function parseCorona() {
     sheetRegions.getRange(lastRow,1, row, column).setValues(rows);
     }
   }
-  
 
 /*** old function */
   function parseCoronaWrite() {
