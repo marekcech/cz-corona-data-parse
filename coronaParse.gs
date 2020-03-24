@@ -28,9 +28,10 @@ function parseCorona() {
   // prepare the rows object
   var rows = [];
   // prepare headers
-   rows.push(["date","tested cases", "positive tests"]);
+   rows.push(["date","tested cases", "positive tests", "infected daily"]);
   // preapare helper variable
   var positiveTests = "";
+   var infectedDaily = "";
   var totalTestedCases = 0;
   var lastRow = ss.getLastRow()+1;
   
@@ -55,9 +56,24 @@ function parseCorona() {
    
      }
     
+        // infected daily
+    for (var pt = 0; pt < data.infectedDaily.length; pt++) {
+    
+    if (data.numberOfTestedGraph[v] && data.infectedDaily[pt].date == data.numberOfTestedGraph[v].date) {
+      
+      infectedDaily = data.infectedDaily[pt].value;
+      break;
+      
+    } else {
+      infectedDaily = "no data";
+    }
+    
+   
+     }
+    
      //  totalTestedCases += parseInt(data.numberOfTestedGraph[v].value,10);
     
-    rows.push([data.numberOfTestedGraph[v].date, data.numberOfTestedGraph[v].value, positiveTests]);
+    rows.push([data.numberOfTestedGraph[v].date, data.numberOfTestedGraph[v].value, positiveTests, infectedDaily]);
     //  (informationPassedObj[0] == undefined ) ? '' : informationPassedObj[0])
      }
            
@@ -92,7 +108,7 @@ function parseCorona() {
     var row = rows.length;
     var columnNew = rows[0].length;
     
-    ss.getRange(1,4,row, columnNew).setValues(rows);
+    ss.getRange(1,5,row, columnNew).setValues(rows);
     
     rows = [];
     
@@ -129,6 +145,79 @@ function parseCorona() {
   // var lastRow = sheetRegions.getLastRow()+1;
     
     sheetRegions.getRange(1,1, row, column).setValues(rows);
+    }
+  
+  
+    // prepare the ages sheet
+    
+  var sheetAges = doc.getSheetByName("AGES");
+   rows = [];
+  
+  
+  APP.flush();
+  Utilities.sleep(500);
+  
+  // go through all the regions
+  
+  
+  rows.push(["date","sex (muž = male, žena = female)", "age", "infected"]);
+  
+  
+  for (var s=0; s < data.infectedByAgeSex.length; s++) {
+  
+  for (var r=0; r < data.infectedByAgeSex[0].infectedByAge.length; r++) {
+      //  totalTestedCases += parseInt(data.numberOfTestedGraph[v].value,10);
+      
+      rows.push([data.lastUpdatedAtSource,data.infectedByAgeSex[s].sex,data.infectedByAgeSex[0].infectedByAge[r].age, data.infectedByAgeSex[0].infectedByAge[r].value]);
+  
+       }
+     
+    
+  }
+  
+    if(rows[0]) { 
+    // write to the sheet
+    var row = rows.length;
+    var column = rows[0].length;
+  // var lastRow = sheetRegions.getLastRow()+1;
+    
+    sheetAges.getRange(1,1, row, column).setValues(rows);
+    }
+  
+    // prepare the countries
+    
+  var sheetCountries = doc.getSheetByName("COUNTRIES");
+   rows = [];
+  
+  
+  APP.flush();
+  Utilities.sleep(500);
+  
+  // go through all the countries
+  
+  
+  rows.push(["date","country of infection", "infected"]);
+  
+  
+ 
+  
+  for (var r=0; r < data.countryOfInfection.length; r++) {
+      //  totalTestedCases += parseInt(data.numberOfTestedGraph[v].value,10);
+      
+      rows.push([data.lastUpdatedAtSource,data.countryOfInfection[r].countryName,data.countryOfInfection[r].value]);
+  
+       }
+     
+    
+  
+ 
+    if(rows[0]) { 
+    // write to the sheet
+    var row = rows.length;
+    var column = rows[0].length;
+  // var lastRow = sheetRegions.getLastRow()+1;
+    
+    sheetCountries.getRange(1,1, row, column).setValues(rows);
     }
   }
   
