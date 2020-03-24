@@ -131,13 +131,15 @@ function parseCorona() {
     rows.push(["date","region", "infected"]);
   }
    
+  // go through all the regions 
+  for (var r=0; r < data.infectedByRegion.length; r++) {
+      
+      
   // go through all the saved data, skip header
   for (var d = 0; d < dataRegions.length; d++) {
     
-    // go through all the regions 
-    for (var r=0; r < data.infectedByRegion.length; r++) {
       
-      if (data.lastUpdatedAtSource == dataRegions[d][0]) {
+      if (dataRegions[d+1] &&data.lastUpdatedAtSource == dataRegions[d+1][0]) {
         //  totalTestedCases += parseInt(data.numberOfTestedGraph[v].value,10);
         console.log("skipped");
        break;
@@ -147,10 +149,11 @@ function parseCorona() {
        
        
       }
+      }
     }
     //  (informationPassedObj[0] == undefined ) ? '' : informationPassedObj[0])
     
-  }
+  //}
   if(rows[0]) { 
     // write to the sheet
     var row = rows.length;
